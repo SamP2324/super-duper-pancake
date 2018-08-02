@@ -46,18 +46,20 @@ public partial class AddAppointment : System.Web.UI.Page
         AppointmentAppDbEntities dbcon = new AppointmentAppDbEntities();
         dbcon.AppointmentTables.Load();
 
-        var existingApp =
-            from x in dbcon.AppointmentTables.Local
-            where x.Date.Equals(appDate) && x.Time.Equals(appTime)
-            select x;
-        if (existingApp != null)
+        try
         {
-            lstResult.Items.Clear();
-            lstResult.Items.Add("You already have an existing appointment at that date and time.");
-            return false;
+            AppointmentTable existingApp =
+            (from x in dbcon.AppointmentTables.Local
+             where x.Date.Equals(appDate) && x.Time.Equals(appTime)
+             select x).First();
         }
-
-        return advisorAvailable(advisorName, appDate, appTime);
+        catch (Exception e)
+        {
+            return advisorAvailable(advisorName, appDate, appTime);
+        }
+        lstResult.Items.Clear();
+        lstResult.Items.Add("You already have an existing appointment at that date and time.");
+        return false;
     }
 
     private bool advisorAvailable(string advisorName, DateTime appDate, TimeSpan appTime)
@@ -65,17 +67,20 @@ public partial class AddAppointment : System.Web.UI.Page
         AdvisorDBEntities dbcon = new AdvisorDBEntities();
         dbcon.AdvisorTables.Load();
 
-        var existingApp =
-            from x in dbcon.AdvisorTables.Local
-            where x.Date.Equals(appDate) && x.Time.Equals(appTime)
-            select x;
-        if (existingApp != null)
+        try
         {
-            lstResult.Items.Clear();
-            lstResult.Items.Add("The advisor is unavailable at the selected date and time.");
-            return false;
+            AdvisorTable existingApp =
+            (from x in dbcon.AdvisorTables.Local
+             where x.Date.Equals(appDate) && x.Time.Equals(appTime)
+             select x).First();
         }
-        return true;
+        catch (Exception e)
+        {
+            return true;
+        }
+        lstResult.Items.Clear();
+        lstResult.Items.Add("The advisor is unavailable at the selected date and time.");
+        return false;
     }
 
     protected void Calendar1_SelectionChanged(object sender, EventArgs e)
